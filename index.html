@@ -12,7 +12,7 @@
     --ink: #0a1929; --ink-soft: #546e7a;
     --white: #ffffff; --line: #cfd8dc;
     --paper: #fffdf7; --paper-line: #eef3f9;
-    --danger: #c62828; --danger-pale: #ffebee;
+    --danger: #d32f2f; --danger-pale: #ffebee;
   }
   html, body {
     min-height: 100%;
@@ -22,13 +22,21 @@
     overflow-x: hidden;
   }
 
-  /* === BACKGROUND EFEK (PARTIKEL TERBANG) === */
-  #bg-particles {
+  /* === BACKGROUND AURORA MESH & PARTIKEL === */
+  .bg-aurora {
     position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    background: radial-gradient(circle at 0% 0%, rgba(100,181,246,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(21,101,192,0.1) 0%, transparent 50%);
+    animation: auroraMove 15s ease-in-out infinite alternate;
   }
+  @keyframes auroraMove {
+    0% { transform: scale(1) translate(0, 0); }
+    100% { transform: scale(1.1) translate(20px, 20px); }
+  }
+  
+  #bg-particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
   .particle {
-    position: absolute; bottom: -20px;
-    background: rgba(21,101,192,0.12); border-radius: 50%;
+    position: absolute; bottom: -20px; background: rgba(21,101,192,0.15); border-radius: 50%;
     animation: floatUp linear infinite;
   }
   @keyframes floatUp {
@@ -37,57 +45,61 @@
     90% { opacity: 1; }
     100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
   }
-  body::before {
-    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background-image: radial-gradient(circle, rgba(21,101,192,.06) 1px, transparent 1px);
-    background-size: 22px 22px;
-    animation: bgDrift 45s linear infinite;
-  }
-  @keyframes bgDrift { 0% { background-position: 0 0; } 100% { background-position: 22px 44px; } }
-
+  
   #app { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; min-height: 100vh; padding: 20px 16px 30px; }
 
   /* === SCREEN TRANSITIONS === */
   .screen { display: none; }
   .screen.active { display: block; }
   
-  @keyframes popIn {
-    0% { opacity: 0; transform: translateY(60px) scale(0.92); }
-    60% { opacity: 1; transform: translateY(-6px) scale(1.02); }
+  @keyframes bouncyIn {
+    0% { opacity: 0; transform: translateY(50px) scale(0.9); }
+    60% { opacity: 1; transform: translateY(-8px) scale(1.02); }
     100% { opacity: 1; transform: translateY(0) scale(1); }
   }
-  .screen.active > * {
-    animation: popIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  }
-  .screen.active > *:nth-child(2) { animation-delay: 0.1s; }
-  .screen.active > *:nth-child(3) { animation-delay: 0.2s; }
-  .screen.active > *:nth-child(4) { animation-delay: 0.3s; }
+  .anim-in { animation: bouncyIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
-  /* === LIGHT SWEEP EFEK === */
+  /* STAGGER ANIMATION */
+  .stagger-1 { animation: bouncyIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both; }
+  .stagger-2 { animation: bouncyIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both; }
+  .stagger-3 { animation: bouncyIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s both; }
+  .stagger-4 { animation: bouncyIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s both; }
+  .stagger-5 { animation: bouncyIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s both; }
+  .stagger-6 { animation: bouncyIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.6s both; }
+
+  /* === EFEK KILAU (SWEEP) === */
   .sweep-container { position: relative; overflow: hidden; }
   .sweep-container::after {
     content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-    transform: skewX(-25deg); animation: sweep 3s infinite;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+    transform: skewX(-25deg); animation: sweep 3.5s infinite;
   }
   @keyframes sweep { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
-  /* === RIPPLE === */
+  /* === RIPPLE & SPARKLE === */
   @keyframes rippleExpand { to { transform: scale(2.5); opacity: 0; } }
   .ripple-el {
-    position: absolute; border-radius: 50%; background: rgba(21,101,192,.25); pointer-events: none;
+    position: absolute; border-radius: 50%; background: rgba(21,101,192,.3); pointer-events: none;
     transform: scale(0); animation: rippleExpand .65s ease-out;
+  }
+  .sparkle {
+    position: absolute; width: 6px; height: 6px; background: var(--blue-light); border-radius: 50%;
+    pointer-events: none; animation: sparkleOut 0.5s ease-out forwards;
+  }
+  @keyframes sparkleOut {
+    0% { transform: scale(1) translate(0, 0); opacity: 1; }
+    100% { transform: scale(0) translate(var(--tx), var(--ty)); opacity: 0; }
   }
 
   /* === SPLASH === */
   .emblem {
     background: var(--white); border: 1px solid var(--line);
-    border-radius: 22px; padding: 40px 24px 28px;
-    text-align: center; box-shadow: 0 10px 40px rgba(13,71,161,0.1);
+    border-radius: 24px; padding: 40px 24px 28px;
+    text-align: center; box-shadow: 0 15px 50px rgba(13,71,161,0.12);
     margin-top: 28px; position: relative; overflow: hidden;
   }
   .emblem::before {
-    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
     background: linear-gradient(90deg, var(--blue), var(--blue-light), var(--blue));
     background-size: 200% 100%; animation: borderGlow 2s linear infinite;
   }
@@ -95,65 +107,57 @@
   
   .emblem-frame {
     width: 130px; height: 130px; border-radius: 50%; overflow: hidden;
-    margin: 0 auto 18px; border: 4px solid var(--blue-pale);
-    background: var(--blue-pale);
-    box-shadow: 0 0 0 2px var(--white), 0 0 0 6px var(--blue-light);
+    margin: 0 auto 18px; border: 4px solid var(--blue-pale); background: var(--blue-pale);
     animation: pulseRing 2s ease-in-out infinite;
   }
   @keyframes pulseRing {
     0%,100% { box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--blue-light); transform: scale(1); }
-    50% { box-shadow: 0 0 0 2px var(--white), 0 0 0 10px rgba(100,181,246,0.4); transform: scale(1.02); }
+    50% { box-shadow: 0 0 0 2px var(--white), 0 0 0 12px rgba(100,181,246,0.3); transform: scale(1.03); }
   }
   .emblem-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .emblem h1 { font-size: 1.4rem; letter-spacing: -0.5px; color: var(--ink); font-weight: 800; }
-  .emblem-sub { color: var(--blue); font-size: 0.85rem; margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
-  .emblem-info {
-    margin: 22px 0 24px; border-top: 1px dashed var(--line);
-    border-bottom: 1px dashed var(--line); padding: 14px 0; text-align: left;
-  }
+  .emblem h1 { font-size: 1.5rem; letter-spacing: -0.5px; color: var(--ink); font-weight: 900; }
+  .emblem-sub { color: var(--blue); font-size: 0.85rem; margin-top: 4px; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; }
+  .emblem-info { margin: 24px 0; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line); padding: 14px 0; text-align: left; }
   .info-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 4px; font-size: 0.95rem; }
-  .info-row span:first-child { color: var(--ink-soft); }
-  .info-row span:last-child { font-weight: 700; color: var(--ink); text-align: right; }
+  .info-row span:first-child { color: var(--ink-soft); font-weight: 600; }
+  .info-row span:last-child { font-weight: 800; color: var(--ink); text-align: right; }
 
   /* === BUTTONS === */
   .btn {
     position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    border: none; cursor: pointer; font-family: inherit; font-size: 1rem; font-weight: 700; letter-spacing: 0.5px;
-    padding: 14px 24px; border-radius: 12px; width: 100%;
-    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    border: none; cursor: pointer; font-family: inherit; font-size: 1rem; font-weight: 800; letter-spacing: 0.5px;
+    padding: 15px 24px; border-radius: 14px; width: 100%; transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
-  .btn:hover { transform: translateY(-3px) scale(1.02); }
-  .btn:active { transform: translateY(1px) scale(0.98); }
-  .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 6px 20px rgba(21,101,192,.35); }
-  .btn-primary:hover { background: var(--blue-dark); box-shadow: 0 8px 25px rgba(21,101,192,.5); }
+  .btn:hover { transform: translateY(-4px) scale(1.02); }
+  .btn:active { transform: translateY(2px) scale(0.96); }
+  .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 8px 25px rgba(21,101,192,0.35); }
+  .btn-primary:hover { background: var(--blue-mid); box-shadow: 0 12px 30px rgba(21,101,192,0.5); }
   .btn-outline { background: #fff; color: var(--blue); border: 2px solid var(--blue); }
   .btn-outline:hover { background: var(--blue-pale); }
-  .btn-danger { background: var(--danger); color: #fff; box-shadow: 0 6px 20px rgba(198,40,40,.3); }
-  .btn-danger:hover { background: #b71c1c; }
+  .btn-danger { background: var(--danger); color: #fff; box-shadow: 0 8px 25px rgba(211,47,47,0.3); }
+  .btn-danger:hover { background: #b71c1c; box-shadow: 0 12px 30px rgba(211,47,47,0.5); }
   
   .btn-back {
     position: relative; overflow: hidden; background: #fff; border: 2px solid var(--line); color: var(--ink);
-    width: 44px; height: 44px; border-radius: 12px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;
+    width: 44px; height: 44px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;
   }
-  .btn-back:hover { background: var(--blue-pale); border-color: var(--blue-light); transform: translateX(-4px); }
+  .btn-back:hover { background: var(--blue-pale); border-color: var(--blue-light); transform: translateX(-4px) scale(1.05); }
 
   /* === PAPER === */
   .paper {
     background-color: var(--paper);
     background-image: repeating-linear-gradient(to bottom, transparent 0px, transparent 32px, var(--paper-line) 32px, var(--paper-line) 33px);
-    border: 2px solid var(--line); border-radius: 16px;
-    padding: 28px 24px; box-shadow: 0 8px 30px rgba(13,71,161,0.08);
-    margin-top: 20px; position: relative; overflow: hidden;
+    border: 2px solid var(--line); border-radius: 18px; padding: 28px 24px;
+    box-shadow: 0 10px 35px rgba(13,71,161,0.08); margin-top: 20px; position: relative; overflow: hidden;
   }
   .paper::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--blue); opacity: 0.9; }
-  .paper-q { font-size: 1.25rem; font-weight: 800; color: var(--ink); margin-bottom: 22px; }
+  .paper-q { font-size: 1.3rem; font-weight: 900; color: var(--ink); margin-bottom: 24px; }
 
   /* === ROLE === */
-  .role-options { display: grid; gap: 14px; }
+  .role-options { display: grid; gap: 16px; }
   .role-card {
-    position: relative; overflow: hidden; background: #fff; border: 2px solid var(--line); border-radius: 14px;
-    padding: 20px; text-align: left; cursor: pointer; font-family: inherit; font-size: 1.1rem; font-weight: 800; color: var(--ink);
+    position: relative; overflow: hidden; background: #fff; border: 2px solid var(--line); border-radius: 16px;
+    padding: 22px; text-align: left; cursor: pointer; font-family: inherit; font-size: 1.1rem; font-weight: 900; color: var(--ink);
     display: flex; align-items: center; justify-content: space-between; transition: all 0.3s;
   }
   .role-card::before {
@@ -161,23 +165,37 @@
   }
   .role-card:hover::before { width: 100%; }
   .role-card > * { position: relative; z-index: 1; }
-  .role-card:hover { border-color: var(--blue); transform: translateY(-4px); box-shadow: 0 10px 25px rgba(21,101,192,.15); }
+  .role-card:hover { border-color: var(--blue); transform: translateY(-5px) scale(1.02); box-shadow: 0 12px 30px rgba(21,101,192,0.2); }
   .role-card svg { color: var(--blue); transition: transform 0.3s; }
-  .role-card:hover svg { transform: scale(1.2) rotate(10deg); }
+  .role-card:hover svg { transform: scale(1.2) rotate(15deg); }
 
-  /* === SCREEN MUSUH === */
+  /* === SCREEN MUSUH (LAYAR GELAP & GLITCH) === */
   #musuh {
-    background: #0a1929; position: fixed; inset: 0; z-index: 99;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #05080f; position: fixed; inset: 0; z-index: 99;
+    flex-direction: column; align-items: center; justify-content: center;
     text-align: center; padding: 20px; border-radius: 0; max-width: 100%; margin: 0;
+    display: none; /* BUG FIX: Sembunyikan secara default */
   }
   #musuh.active { display: flex; }
+  
   .musuh-text {
-    font-size: 2.2rem; font-weight: 900; color: var(--danger); letter-spacing: 2px;
-    text-shadow: 0 0 20px rgba(198,40,40,0.5);
-    animation: shakeHard 0.5s infinite;
-    margin-bottom: 30px;
+    font-size: 2.2rem; font-weight: 900; color: #ff3b3b; letter-spacing: 2px;
+    text-transform: uppercase; position: relative;
+    animation: shakeHard 0.4s infinite;
   }
+  /* Efek Glitch RGB */
+  .musuh-text::before, .musuh-text::after {
+    content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  }
+  .musuh-text::before {
+    left: 3px; text-shadow: -2px 0 #00ffff; animation: glitch-anim-1 1.5s infinite linear alternate-reverse; clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  }
+  .musuh-text::after {
+    left: -3px; text-shadow: -2px 0 #ff00ff; animation: glitch-anim-2 2s infinite linear alternate-reverse; clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
+  }
+  @keyframes glitch-anim-1 { 0% { clip-path: inset(20% 0 80% 0); } 20% { clip-path: inset(60% 0 10% 0); } 40% { clip-path: inset(40% 0 50% 0); } 60% { clip-path: inset(80% 0 5% 0); } 80% { clip-path: inset(10% 0 70% 0); } 100% { clip-path: inset(30% 0 50% 0); } }
+  @keyframes glitch-anim-2 { 0% { clip-path: inset(10% 0 60% 0); } 20% { clip-path: inset(30% 0 20% 0); } 40% { clip-path: inset(70% 0 10% 0); } 60% { clip-path: inset(20% 0 50% 0); } 80% { clip-path: inset(50% 0 30% 0); } 100% { clip-path: inset(5% 0 80% 0); } }
+
   @keyframes shakeHard {
     0% { transform: translate(1px, 1px) rotate(0deg); }
     10% { transform: translate(-1px, -2px) rotate(-1deg); }
@@ -195,40 +213,33 @@
   /* === DASHBOARD === */
   #dashboard.active { display: flex; flex-direction: column; min-height: calc(100vh - 50px); }
   .dash-banner {
-    background: var(--white); border: 2px solid var(--line); border-radius: 16px;
-    padding: 20px; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(13,71,161,.05);
+    background: var(--white); border: 2px solid var(--line); border-radius: 18px;
+    padding: 20px; position: relative; overflow: hidden; box-shadow: 0 5px 20px rgba(13,71,161,.06);
   }
-  .dash-banner::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--blue); }
-  .dash-banner p { font-size: 0.75rem; color: var(--ink-soft); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
-  .dash-banner h2 { font-size: 1.4rem; color: var(--ink); margin: 4px 0 8px; letter-spacing: -0.5px; font-weight: 800; }
-  .dash-badge { display: inline-block; background: var(--blue); color: #fff; font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px; animation: pulseBadge 2s infinite; }
-  @keyframes pulseBadge { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(21,101,192,0.4); } }
+  .dash-banner::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--blue); }
+  .dash-banner p { font-size: 0.75rem; color: var(--ink-soft); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 800; }
+  .dash-banner h2 { font-size: 1.5rem; color: var(--ink); margin: 4px 0 10px; letter-spacing: -0.5px; font-weight: 900; }
+  .dash-badge { display: inline-block; background: var(--blue); color: #fff; font-size: 0.75rem; font-weight: 800; padding: 5px 12px; border-radius: 20px; letter-spacing: 0.5px; animation: pulseBadge 2s infinite; }
+  @keyframes pulseBadge { 0%,100% { transform: scale(1); box-shadow: none; } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(21,101,192,0.4); } }
 
   /* TICKER (TEKS BERJALAN) */
-  .ticker-wrap {
-    width: 100%; overflow: hidden; background: var(--blue-pale); border-radius: 8px;
-    padding: 8px 0; margin: 14px 0; border: 1px solid rgba(21,101,192,0.2);
-  }
-  .ticker {
-    display: inline-block; white-space: nowrap; padding-left: 100%;
-    animation: ticker 15s linear infinite; font-size: 0.85rem; font-weight: 700; color: var(--blue-dark);
-  }
+  .ticker-wrap { width: 100%; overflow: hidden; background: var(--blue-pale); border-radius: 10px; padding: 10px 0; margin: 16px 0; border: 1px solid rgba(21,101,192,0.2); }
+  .ticker { display: inline-block; white-space: nowrap; padding-left: 100%; animation: ticker 18s linear infinite; font-size: 0.85rem; font-weight: 800; color: var(--blue-dark); }
   @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
 
   /* WIDGET JAM */
   .dash-clock-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px 0; min-height: 200px; }
   .clock-card {
-    background: var(--white); border: 2px solid var(--line); border-radius: 20px;
-    padding: 30px 24px; width: 100%; text-align: center; box-shadow: 0 10px 30px rgba(13,71,161,0.08);
-    position: relative; overflow: hidden; transition: transform 0.3s;
+    background: var(--white); border: 2px solid var(--line); border-radius: 20px; padding: 30px 24px;
+    width: 100%; text-align: center; box-shadow: 0 10px 35px rgba(13,71,161,0.08); position: relative; overflow: hidden; transition: all 0.3s;
   }
-  .clock-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(13,71,161,0.15); }
+  .clock-card:hover { transform: translateY(-6px); box-shadow: 0 15px 45px rgba(13,71,161,0.15); }
   .clock-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--blue); }
-  .clock-day { font-size: 0.85rem; font-weight: 800; color: var(--blue); text-transform: uppercase; letter-spacing: 2px; }
-  .clock-time { font-size: 3rem; font-weight: 900; color: var(--ink); letter-spacing: -1.5px; font-variant-numeric: tabular-nums; margin: 10px 0 4px; line-height: 1; text-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-  .clock-date { font-size: 0.9rem; color: var(--ink-soft); font-weight: 600; }
-  .clock-divider { height: 1px; background: var(--line); margin: 20px 0; }
-  .clock-quote { font-size: 0.85rem; color: var(--ink-soft); font-style: italic; line-height: 1.6; font-weight: 500; }
+  .clock-day { font-size: 0.9rem; font-weight: 900; color: var(--blue); text-transform: uppercase; letter-spacing: 2px; }
+  .clock-time { font-size: 3.2rem; font-weight: 900; color: var(--ink); letter-spacing: -1.5px; font-variant-numeric: tabular-nums; margin: 10px 0 6px; line-height: 1; text-shadow: 0 5px 15px rgba(0,0,0,0.06); }
+  .clock-date { font-size: 0.95rem; color: var(--ink-soft); font-weight: 700; }
+  .clock-divider { height: 2px; background: var(--line); margin: 20px 0; border-radius: 2px; }
+  .clock-quote { font-size: 0.9rem; color: var(--ink-soft); font-style: italic; line-height: 1.6; font-weight: 600; }
 
   /* MENU BAWAH */
   .menu-grid { display: grid; gap: 12px; margin-top: auto; }
@@ -236,156 +247,152 @@
     position: relative; overflow: hidden; background: #fff; border: 2px solid var(--line); border-radius: 16px;
     padding: 16px; cursor: pointer; font-family: inherit; text-align: left;
     display: flex; align-items: center; gap: 16px; transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(13,71,161,.04);
+    box-shadow: 0 5px 15px rgba(13,71,161,.05);
   }
-  .menu-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--blue); transform: scaleY(0); transform-origin: bottom; transition: transform 0.3s; }
-  .menu-card:hover { border-color: var(--blue-light); box-shadow: 0 10px 25px rgba(21,101,192,.15); transform: translateY(-4px) scale(1.01); }
+  .menu-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--blue); transform: scaleY(0); transform-origin: bottom; transition: transform 0.3s; }
+  .menu-card:hover { border-color: var(--blue-light); box-shadow: 0 12px 30px rgba(21,101,192,.2); transform: translateY(-5px) scale(1.01); }
   .menu-card:hover::before { transform: scaleY(1); }
   .menu-card:active { transform: translateY(0) scale(0.98); }
   .menu-icon {
-    width: 46px; height: 46px; border-radius: 12px; background: var(--blue-pale);
+    width: 48px; height: 48px; border-radius: 14px; background: var(--blue-pale);
     display: flex; align-items: center; justify-content: center; color: var(--blue);
     flex-shrink: 0; transition: all 0.3s;
   }
   .menu-card:hover .menu-icon { background: var(--blue); color: #fff; animation: iconBounce 0.6s ease; }
-  @keyframes iconBounce { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.1); } }
+  @keyframes iconBounce { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(1.1); } }
   .menu-body { flex: 1; }
-  .menu-title { font-weight: 800; font-size: 1.05rem; color: var(--ink); }
-  .menu-desc { font-size: 0.8rem; color: var(--ink-soft); margin-top: 2px; font-weight: 500; }
+  .menu-title { font-weight: 900; font-size: 1.1rem; color: var(--ink); }
+  .menu-desc { font-size: 0.8rem; color: var(--ink-soft); margin-top: 2px; font-weight: 600; }
   .menu-arrow { color: var(--blue-light); transition: transform 0.3s, color 0.3s; }
   .menu-card:hover .menu-arrow { transform: translateX(6px) scale(1.1); color: var(--blue); }
 
   /* === SUB HEADER === */
   .sub-header { display: flex; align-items: center; gap: 14px; padding: 4px 0 20px; }
-  .sub-header h2 { font-size: 1.25rem; color: var(--ink); font-weight: 800; }
-  .sub-header p { font-size: 0.8rem; color: var(--ink-soft); font-weight: 500; }
+  .sub-header h2 { font-size: 1.3rem; color: var(--ink); font-weight: 900; }
+  .sub-header p { font-size: 0.8rem; color: var(--ink-soft); font-weight: 600; }
 
   /* === SOCIAL LIST === */
-  .list-card { background: #fff; border: 2px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(13,71,161,.04); }
-  .list-item { display: flex; align-items: center; gap: 14px; padding: 16px; border-bottom: 1px solid var(--line); font-size: 0.95rem; transition: background 0.2s, transform 0.2s; }
+  .list-card { background: #fff; border: 2px solid var(--line); border-radius: 18px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 5px 20px rgba(13,71,161,.05); }
+  .list-item { display: flex; align-items: center; gap: 14px; padding: 16px; border-bottom: 1px solid var(--line); font-size: 0.95rem; transition: all 0.2s; }
   .list-item:hover { background: var(--blue-pale); transform: translateX(4px); }
   .list-item:last-child { border-bottom: none; }
-  .list-ico { width: 40px; height: 40px; border-radius: 10px; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; color: var(--blue); flex-shrink: 0; transition: all 0.3s; }
-  .list-item:hover .list-ico { background: var(--blue); color: #fff; transform: rotate(10deg) scale(1.1); }
-  .list-label { color: var(--ink-soft); font-size: 0.8rem; font-weight: 600; }
-  .list-value { font-weight: 800; color: var(--ink); word-break: break-all; }
+  .list-ico { width: 40px; height: 40px; border-radius: 12px; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; color: var(--blue); flex-shrink: 0; transition: all 0.3s; }
+  .list-item:hover .list-ico { background: var(--blue); color: #fff; transform: rotate(12deg) scale(1.1); }
+  .list-label { color: var(--ink-soft); font-size: 0.8rem; font-weight: 700; }
+  .list-value { font-weight: 900; color: var(--ink); word-break: break-all; }
   .list-item.disabled .list-value { color: #b0bec5; }
   
-  .section-title { font-size: 0.85rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin: 10px 4px 12px; }
+  .section-title { font-size: 0.85rem; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin: 10px 4px 14px; }
   .proj-link {
     position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px;
-    background: #fff; border: 2px solid var(--line); border-radius: 12px;
-    padding: 14px 16px; margin-bottom: 10px; color: var(--blue-dark); text-decoration: none; font-size: 0.9rem; font-weight: 700;
-    transition: all 0.25s;
+    background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
+    color: var(--blue-dark); text-decoration: none; font-size: 0.9rem; font-weight: 800; transition: all 0.25s;
   }
-  .proj-link:hover { background: var(--blue-pale); border-color: var(--blue-light); transform: translateX(6px); box-shadow: 0 4px 15px rgba(21,101,192,.1); }
+  .proj-link:hover { background: var(--blue-pale); border-color: var(--blue-light); transform: translateX(6px); box-shadow: 0 6px 15px rgba(21,101,192,.15); }
   .proj-link span { flex: 1; word-break: break-all; }
-  .latest-badge { background: var(--danger); color: #fff; font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; flex-shrink: 0; animation: pulseBadge 1.5s infinite; }
+  .latest-badge { background: var(--danger); color: #fff; font-size: 0.65rem; font-weight: 900; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; flex-shrink: 0; animation: pulseBadge 1.5s infinite; }
 
   /* === QUIZ === */
-  .quiz-progress { height: 8px; background: var(--blue-pale); border-radius: 4px; overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(21,101,192,0.1); }
+  .quiz-progress { height: 10px; background: var(--blue-pale); border-radius: 5px; overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(21,101,192,0.15); }
   .quiz-progress-bar { height: 100%; background: var(--blue); width: 0%; transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; overflow: hidden; }
-  .quiz-progress-bar::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent); animation: shimmer 1.5s infinite; }
+  .quiz-progress-bar::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent); animation: shimmer 1.5s infinite; }
   @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
   
-  .q-text { font-size: 1.15rem; font-weight: 800; margin-bottom: 20px; color: var(--ink); line-height: 1.4; }
+  .q-text { font-size: 1.15rem; font-weight: 900; margin-bottom: 22px; color: var(--ink); line-height: 1.4; }
   .opt {
     position: relative; overflow: hidden; display: block; width: 100%; text-align: left;
-    background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 16px;
-    margin-bottom: 10px; cursor: pointer; font-family: inherit; font-size: 0.95rem; color: var(--ink); font-weight: 600;
-    transition: all 0.2s;
+    background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 16px;
+    margin-bottom: 10px; cursor: pointer; font-family: inherit; font-size: 0.95rem; color: var(--ink); font-weight: 700; transition: all 0.2s;
   }
-  .opt:hover { border-color: var(--blue); background: var(--blue-pale); transform: translateX(4px) scale(1.01); box-shadow: 0 4px 12px rgba(21,101,192,.1); }
-  .opt:active { transform: translateX(0) scale(0.98); }
+  .opt:hover { border-color: var(--blue); background: var(--blue-pale); transform: translateX(5px) scale(1.01); box-shadow: 0 5px 15px rgba(21,101,192,.1); }
+  .opt:active { transform: translateX(0) scale(0.97); }
   
   .essay-box {
-    width: 100%; min-height: 130px; resize: vertical; border: 2px solid var(--line); border-radius: 12px;
-    padding: 16px; font-family: inherit; font-size: 0.95rem; color: var(--ink); background: #fff; outline: none; transition: all 0.3s;
+    width: 100%; min-height: 130px; resize: vertical; border: 2px solid var(--line); border-radius: 14px;
+    padding: 16px; font-family: inherit; font-size: 0.95rem; color: var(--ink); background: #fff; outline: none; transition: all 0.3s; font-weight: 600;
   }
-  .essay-box:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(21,101,192,0.15); background: var(--blue-pale); }
+  .essay-box:focus { border-color: var(--blue); box-shadow: 0 0 0 5px rgba(21,101,192,0.15); background: var(--blue-pale); }
   
   .match-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .match-col { display: flex; flex-direction: column; gap: 10px; }
   .match-item {
-    position: relative; overflow: hidden; background: #fff; border: 2px solid var(--line); border-radius: 10px;
-    padding: 12px; font-size: 0.85rem; cursor: pointer; font-family: inherit; color: var(--ink); font-weight: 600; text-align: left; transition: all 0.2s;
+    position: relative; overflow: hidden; background: #fff; border: 2px solid var(--line); border-radius: 12px;
+    padding: 12px; font-size: 0.85rem; cursor: pointer; font-family: inherit; color: var(--ink); font-weight: 700; text-align: left; transition: all 0.2s;
   }
-  .match-item:hover { border-color: var(--blue-light); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+  .match-item:hover { border-color: var(--blue-light); transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.06); }
   .match-item.sel { border-color: var(--blue); background: var(--blue-pale); box-shadow: 0 0 0 3px rgba(21,101,192,0.2); }
-  .match-item.done { border-color: var(--blue); background: var(--blue); color: #fff; font-weight: 700; cursor: default; }
+  .match-item.done { border-color: var(--blue); background: var(--blue); color: #fff; font-weight: 800; cursor: default; }
   .match-item.wrong { border-color: var(--danger); background: var(--danger-pale); animation: shakeWrong 0.4s; }
   @keyframes shakeWrong { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
   /* === RESULT === */
   .result-screen { text-align: center; padding-top: 40px; }
   .result-box {
-    background: #fff; border: 2px solid var(--line); border-radius: 20px;
-    padding: 40px 24px; box-shadow: 0 15px 50px rgba(13,71,161,.15);
-    animation: popIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    background: #fff; border: 2px solid var(--line); border-radius: 24px;
+    padding: 40px 24px; box-shadow: 0 20px 60px rgba(13,71,161,.15);
   }
-  .result-score { font-size: 4rem; font-weight: 900; color: var(--blue); line-height: 1; margin-bottom: 10px; text-shadow: 0 6px 15px rgba(21,101,192,0.2); }
-  .result-score small { font-size: 1.2rem; color: var(--ink-soft); font-weight: 700; }
-  .result-title { font-size: 1.4rem; font-weight: 900; margin: 20px 0 25px; color: var(--ink); }
+  .result-score { font-size: 4.5rem; font-weight: 900; color: var(--blue); line-height: 1; margin-bottom: 10px; text-shadow: 0 8px 20px rgba(21,101,192,0.2); }
+  .result-score small { font-size: 1.2rem; color: var(--ink-soft); font-weight: 800; }
+  .result-title { font-size: 1.5rem; font-weight: 900; margin: 20px 0 30px; color: var(--ink); }
 
   /* === STORY === */
   .story-paper { min-height: 300px; }
-  .story-text { font-size: 1rem; color: var(--ink); white-space: pre-wrap; word-break: break-word; line-height: 32px; min-height: 220px; font-weight: 500; }
-  .cursor-blink { display: inline-block; width: 3px; height: 18px; background: var(--blue); vertical-align: middle; margin-left: 2px; animation: blink 0.8s steps(2) infinite; }
+  .story-text { font-size: 1rem; color: var(--ink); white-space: pre-wrap; word-break: break-word; line-height: 34px; min-height: 220px; font-weight: 600; }
+  .cursor-blink { display: inline-block; width: 3px; height: 20px; background: var(--blue); vertical-align: middle; margin-left: 2px; animation: blink 0.8s steps(2) infinite; }
   @keyframes blink { 50% { opacity: 0; } }
   
   .info-card {
-    background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 24px;
-    margin-top: 20px; box-shadow: 0 10px 30px rgba(13,71,161,.1);
-    animation: popIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    background: #fff; border: 2px solid var(--line); border-radius: 18px; padding: 24px;
+    margin-top: 20px; box-shadow: 0 15px 40px rgba(13,71,161,.12);
   }
-  .info-card h3 { font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--line); font-weight: 800; }
-  .info-card .info-row { padding: 8px 0; font-size: 0.95rem; border-bottom: 1px dashed var(--line); }
+  .info-card h3 { font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; padding-bottom: 14px; border-bottom: 2px solid var(--line); font-weight: 900; }
+  .info-card .info-row { padding: 10px 0; font-size: 0.95rem; border-bottom: 1px dashed var(--line); }
   .info-card .info-row:last-child { border-bottom: none; }
 
   /* === COUNTDOWN === */
   .cd-card {
-    background: var(--white); border: 2px solid var(--line); border-radius: 20px;
-    padding: 36px 24px; text-align: center; box-shadow: 0 10px 30px rgba(13,71,161,.1);
+    background: var(--white); border: 2px solid var(--line); border-radius: 24px;
+    padding: 36px 24px; text-align: center; box-shadow: 0 15px 40px rgba(13,71,161,.1);
     position: relative; overflow: hidden;
   }
-  .cd-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--blue); }
-  .cd-label { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); font-weight: 800; }
-  .cd-date { font-size: 1.8rem; font-weight: 900; color: var(--ink); margin: 6px 0 24px; letter-spacing: -0.5px; }
-  .cd-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+  .cd-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--blue); }
+  .cd-label { font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); font-weight: 900; }
+  .cd-date { font-size: 2rem; font-weight: 900; color: var(--ink); margin: 6px 0 28px; letter-spacing: -1px; }
+  .cd-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 28px; }
   .cd-box {
-    background: var(--blue-pale); border-radius: 12px; padding: 18px 4px;
+    background: var(--blue-pale); border-radius: 14px; padding: 20px 4px;
     border: 2px solid rgba(21,101,192,0.15); transition: all 0.3s;
   }
-  .cd-box:hover { background: #d8ecff; transform: translateY(-4px) scale(1.05); box-shadow: 0 6px 15px rgba(21,101,192,0.15); }
-  .cd-num { font-size: 1.8rem; font-weight: 900; color: var(--blue-dark); font-variant-numeric: tabular-nums; letter-spacing: -1px; display: inline-block; transition: transform 0.2s, color 0.2s; }
-  .cd-num.tick { transform: scale(1.3); color: var(--blue); text-shadow: 0 0 10px rgba(21,101,192,0.5); }
-  .cd-unit { font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px; font-weight: 800; }
+  .cd-box:hover { background: #d8ecff; transform: translateY(-5px) scale(1.05); box-shadow: 0 10px 20px rgba(21,101,192,0.15); }
+  .cd-num { font-size: 1.9rem; font-weight: 900; color: var(--blue-dark); font-variant-numeric: tabular-nums; letter-spacing: -1px; display: inline-block; transition: transform 0.2s, color 0.2s; }
+  .cd-num.tick { transform: scale(1.35); color: var(--blue); text-shadow: 0 0 15px rgba(21,101,192,0.5); }
+  .cd-unit { font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px; font-weight: 900; }
   
-  .cd-progress { height: 6px; background: var(--blue-pale); border-radius: 3px; overflow: hidden; margin-bottom: 20px; }
+  .cd-progress { height: 8px; background: var(--blue-pale); border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
   .cd-progress-fill { height: 100%; background: var(--blue); width: 0%; transition: width 0.5s ease; position: relative; overflow: hidden; }
   .cd-progress-fill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent); animation: shimmer 1.5s infinite; }
-  .cd-info { font-size: 0.9rem; color: var(--ink-soft); font-weight: 600; }
+  .cd-info { font-size: 0.95rem; color: var(--ink-soft); font-weight: 700; }
   .cd-info strong { color: var(--blue-dark); }
   .cd-celebrate {
-    margin-top: 20px; padding: 16px; border-radius: 14px; background: var(--blue-pale);
+    margin-top: 20px; padding: 16px; border-radius: 16px; background: var(--blue-pale);
     border: 2px dashed var(--blue); color: var(--blue-dark); font-weight: 900; font-size: 1rem;
-    animation: popIn 0.5s ease;
   }
 
   /* === SIG === */
-  .sig { text-align: center; font-size: 0.8rem; color: var(--ink-soft); letter-spacing: 2px; margin-top: 20px; padding-top: 16px; border-top: 2px dashed var(--line); opacity: 0.8; font-weight: 700; }
+  .sig { text-align: center; font-size: 0.8rem; color: var(--ink-soft); letter-spacing: 2px; margin-top: 20px; padding-top: 16px; border-top: 2px dashed var(--line); opacity: 0.8; font-weight: 800; }
 </style>
 </head>
 <body>
 
-<!-- BACKGROUND PARTIKEL -->
+<!-- BACKGROUND -->
+<div class="bg-aurora"></div>
 <div id="bg-particles"></div>
 
 <div id="app">
 
   <!-- SPLASH -->
   <div class="screen active" id="splash">
-    <div class="emblem">
+    <div class="emblem anim-in">
       <div class="emblem-frame">
         <img id="profileImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23e3f2fd'/><circle cx='100' cy='78' r='34' fill='%231565c0'/><ellipse cx='100' cy='185' rx='62' ry='56' fill='%231565c0'/></svg>" alt="Foto Daffa">
       </div>
@@ -398,23 +405,23 @@
       </div>
       <button class="btn btn-primary sweep-container" id="btnLanjut">
         Lanjut
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
     </div>
   </div>
 
   <!-- ROLE -->
   <div class="screen" id="role">
-    <div class="paper">
+    <div class="paper anim-in">
       <p class="paper-q">Siapa kamu?</p>
       <div class="role-options">
         <button class="role-card sweep-container" data-role="teman">
           <span>Teman</span>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </button>
         <button class="role-card sweep-container" data-role="musuh">
           <span>Musuh</span>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
         </button>
       </div>
     </div>
@@ -422,17 +429,17 @@
 
   <!-- DASHBOARD -->
   <div class="screen" id="dashboard">
-    <div class="dash-banner">
+    <div class="dash-banner stagger-1">
       <p>Selamat datang kembali</p>
       <h2>Daffa Ubaidillah</h2>
       <span class="dash-badge">King Dafzz</span>
     </div>
     
-    <div class="ticker-wrap">
+    <div class="ticker-wrap stagger-2">
       <div class="ticker">🔥 Selamat datang di aplikasi King Dafzz! Jangan lupa cek sosial media dan kerjakan kuisnya ya! 🔥</div>
     </div>
 
-    <div class="dash-clock-wrap">
+    <div class="dash-clock-wrap stagger-3">
       <div class="clock-card">
         <div class="clock-day" id="liveDay">Memuat...</div>
         <div class="clock-time" id="liveTime">00:00:00</div>
@@ -443,7 +450,7 @@
     </div>
 
     <div class="menu-grid">
-      <button class="menu-card sweep-container" data-menu="social">
+      <button class="menu-card sweep-container stagger-4" data-menu="social">
         <div class="menu-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
         </div>
@@ -454,7 +461,7 @@
         <svg class="menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
 
-      <button class="menu-card sweep-container" data-menu="foryou">
+      <button class="menu-card sweep-container stagger-5" data-menu="foryou">
         <div class="menu-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
         </div>
@@ -465,7 +472,7 @@
         <svg class="menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
 
-      <button class="menu-card sweep-container" data-menu="mee">
+      <button class="menu-card sweep-container stagger-6" data-menu="mee">
         <div class="menu-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
@@ -476,7 +483,7 @@
         <svg class="menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
 
-      <button class="menu-card sweep-container" data-menu="countdown">
+      <button class="menu-card sweep-container stagger-6" data-menu="countdown" style="animation-delay: 0.7s;">
         <div class="menu-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6M12 2v3"/></svg>
         </div>
@@ -487,19 +494,19 @@
         <svg class="menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
     </div>
-    <div class="sig">— KING DAFZZ —</div>
+    <div class="sig stagger-6" style="animation-delay: 0.8s;">— KING DAFZZ —</div>
   </div>
 
   <!-- SOCIAL -->
   <div class="screen" id="social">
-    <div class="sub-header">
+    <div class="sub-header anim-in">
       <button class="btn-back" data-back="dashboard">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
       </button>
       <div><h2>Social Media</h2><p>Akun resmi Daffa</p></div>
     </div>
 
-    <div class="list-card">
+    <div class="list-card stagger-2">
       <div class="list-item">
         <div class="list-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82s.51.5 0 0A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.85-2.48V9.75a5.66 5.66 0 1 0 4.95 5.6V8.86a7.35 7.35 0 0 0 4.3 1.38V7.15s-1.93.12-3.25-1.33z"/></svg></div>
         <div style="flex:1"><div class="list-label">TikTok</div><div class="list-value">daffaubaydillah95</div></div>
@@ -518,24 +525,24 @@
       </div>
     </div>
 
-    <p class="section-title">My Projek</p>
-    <a class="proj-link" href="https://my-life-dafzz.onrender.com" target="_blank" rel="noopener">
+    <p class="section-title stagger-3">My Projek</p>
+    <a class="proj-link stagger-3" href="https://my-life-dafzz.onrender.com" target="_blank" rel="noopener">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
       <span>my-life-dafzz.onrender.com</span>
     </a>
-    <a class="proj-link" href="https://belajar-si.onrender.com" target="_blank" rel="noopener">
+    <a class="proj-link stagger-4" href="https://belajar-si.onrender.com" target="_blank" rel="noopener">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
       <span>belajar-si.onrender.com</span>
     </a>
-    <a class="proj-link" href="https://hacker-kingdafzz-1.onrender.com/" target="_blank" rel="noopener">
+    <a class="proj-link stagger-5" href="https://hacker-kingdafzz-1.onrender.com/" target="_blank" rel="noopener">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
       <span>hacker-kingdafzz-1.onrender.com</span>
     </a>
-    <a class="proj-link" href="https://hollow-dafzz.onrender.com" target="_blank" rel="noopener">
+    <a class="proj-link stagger-6" href="https://hollow-dafzz.onrender.com" target="_blank" rel="noopener">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
       <span>hollow-dafzz.onrender.com</span>
     </a>
-    <a class="proj-link" href="https://jadwal-sekolah.onrender.com/" target="_blank" rel="noopener">
+    <a class="proj-link stagger-6" style="animation-delay: 0.7s;" href="https://jadwal-sekolah.onrender.com/" target="_blank" rel="noopener">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
       <span>jadwal-sekolah.onrender.com</span>
       <span class="latest-badge">LATEST</span>
@@ -544,25 +551,25 @@
 
   <!-- FOR YOU -->
   <div class="screen" id="foryou">
-    <div class="sub-header">
+    <div class="sub-header anim-in">
       <button class="btn-back" data-back="dashboard">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
       </button>
       <div><h2>For You</h2><p>20 soal tentang Daffa</p></div>
     </div>
-    <div class="quiz-progress"><div class="quiz-progress-bar" id="quizBar"></div></div>
+    <div class="quiz-progress anim-in"><div class="quiz-progress-bar" id="quizBar"></div></div>
     <div id="quizBody"></div>
   </div>
 
   <!-- MEE -->
   <div class="screen" id="mee">
-    <div class="sub-header">
+    <div class="sub-header anim-in">
       <button class="btn-back" data-back="dashboard">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
       </button>
       <div><h2>Mee</h2><p>Ceritaku</p></div>
     </div>
-    <div class="paper story-paper">
+    <div class="paper story-paper anim-in">
       <div class="story-text" id="storyText"></div>
     </div>
     <div id="infoCardWrap"></div>
@@ -570,13 +577,13 @@
 
   <!-- COUNTDOWN -->
   <div class="screen" id="countdown">
-    <div class="sub-header">
+    <div class="sub-header anim-in">
       <button class="btn-back" data-back="dashboard">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
       </button>
       <div><h2>Hitung Mundur</h2><p>Menuju hari spesial</p></div>
     </div>
-    <div class="cd-card">
+    <div class="cd-card anim-in">
       <p class="cd-label">Ulang Tahun Daffa</p>
       <p class="cd-date">13 September</p>
       <div class="cd-grid">
@@ -589,13 +596,13 @@
       <p class="cd-info" id="cdInfo"></p>
       <div id="cdCelebrate"></div>
     </div>
-    <div class="sig">— KING DAFZZ —</div>
+    <div class="sig anim-in">— KING DAFZZ —</div>
   </div>
 
   <!-- MUSUH (LAYAR GELAP) -->
   <div class="screen" id="musuh">
-    <div class="musuh-text">pergi lu monyet 🐒🐵🙈</div>
-    <button class="btn btn-danger" id="btnKeluarMusuh" style="width:200px; border: 2px solid #fff; background:transparent;">Pergi</button>
+    <div class="musuh-text" data-text="pergi lu monyet 🐒🐵🙈">pergi lu monyet 🐒🐵🙈</div>
+    <button class="btn btn-danger anim-in" id="btnKeluarMusuh" style="width:220px; border: 2px solid #fff; background:transparent; margin-top: 30px;">Pergi</button>
   </div>
 
 </div>
@@ -654,24 +661,26 @@ function playError() {
 /* ============ BACKGROUND PARTICLES ============ */
 function createParticles() {
   const container = document.getElementById('bg-particles');
-  const count = 20;
+  const count = 25;
   for (let i = 0; i < count; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
-    const size = Math.random() * 20 + 10;
+    const size = Math.random() * 15 + 8;
     p.style.width = size + 'px';
     p.style.height = size + 'px';
     p.style.left = Math.random() * 100 + 'vw';
-    p.style.animationDuration = (Math.random() * 10 + 10) + 's';
+    p.style.animationDuration = (Math.random() * 12 + 10) + 's';
     p.style.animationDelay = (Math.random() * 10) + 's';
     container.appendChild(p);
   }
 }
 createParticles();
 
-/* ============ RIPPLE ============ */
-function addRipple(e, el) {
+/* ============ RIPPLE & SPARKLE ============ */
+function addRippleAndSparkle(e, el) {
   const rect = el.getBoundingClientRect();
+  
+  // Ripple
   const size = Math.max(rect.width, rect.height) * 1.5;
   const x = (e.clientX || (rect.left + rect.width / 2)) - rect.left - size / 2;
   const y = (e.clientY || (rect.top + rect.height / 2)) - rect.top - size / 2;
@@ -682,10 +691,26 @@ function addRipple(e, el) {
   r.style.top = y + 'px';
   el.appendChild(r);
   setTimeout(() => r.remove(), 650);
+
+  // Sparkles
+  for (let i = 0; i < 4; i++) {
+    const sp = document.createElement('div');
+    sp.className = 'sparkle';
+    const posX = (e.clientX || (rect.left + rect.width / 2)) - rect.left;
+    const posY = (e.clientY || (rect.top + rect.height / 2)) - rect.top;
+    sp.style.left = posX + 'px';
+    sp.style.top = posY + 'px';
+    const angle = Math.random() * Math.PI * 2;
+    const dist = Math.random() * 40 + 20;
+    sp.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+    sp.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+    el.appendChild(sp);
+    setTimeout(() => sp.remove(), 500);
+  }
 }
 document.addEventListener('pointerdown', e => {
-  const el = e.target.closest('.btn, .menu-card, .role-card, .opt, .match-item, .proj-link, .btn-back, .list-item');
-  if (el) addRipple(e, el);
+  const el = e.target.closest('.btn, .menu-card, .role-card, .opt, .match-item, .proj-link, .btn-back');
+  if (el) addRippleAndSparkle(e, el);
 }, { passive: true });
 
 /* ============ NAV ============ */
@@ -695,7 +720,7 @@ function showScreen(id) {
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
-/* ============ JAM REALTIME DASHBOARD ============ */
+/* ============ JAM REALTIME ============ */
 function updateClock() {
   const now = new Date();
   const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -736,7 +761,7 @@ document.querySelectorAll('.role-card').forEach(btn => {
   });
 });
 
-// Keluar dari layar Musuh
+// Keluar dari Musuh
 document.getElementById('btnKeluarMusuh').addEventListener('click', () => {
   playClick();
   showScreen('splash');
@@ -815,9 +840,9 @@ function renderQuiz() {
 }
 function renderABC(body, idx) {
   const q = abcQ[idx];
-  const card = document.createElement('div'); card.className = 'paper';
+  const card = document.createElement('div'); card.className = 'paper anim-in';
   const num = document.createElement('div');
-  num.style.cssText = 'font-size:.75rem;color:var(--blue);font-weight:800;letter-spacing:1.5px;margin-bottom:8px;';
+  num.style.cssText = 'font-size:.75rem;color:var(--blue);font-weight:900;letter-spacing:1.5px;margin-bottom:8px;';
   num.textContent = `SOAL ${idx + 1} / 10`;
   const qt = document.createElement('p'); qt.className = 'q-text'; qt.textContent = q.q;
   card.appendChild(num); card.appendChild(qt);
@@ -831,15 +856,15 @@ function renderABC(body, idx) {
 }
 function renderEssay(body, idx) {
   const q = essayQ[idx];
-  const card = document.createElement('div'); card.className = 'paper';
+  const card = document.createElement('div'); card.className = 'paper anim-in';
   const num = document.createElement('div');
-  num.style.cssText = 'font-size:.75rem;color:var(--blue);font-weight:800;letter-spacing:1.5px;margin-bottom:8px;';
+  num.style.cssText = 'font-size:.75rem;color:var(--blue);font-weight:900;letter-spacing:1.5px;margin-bottom:8px;';
   num.textContent = `ESAI ${idx + 1} / 5`;
   const qt = document.createElement('p'); qt.className = 'q-text'; qt.textContent = q.q;
   const ta = document.createElement('textarea');
   ta.className = 'essay-box'; ta.placeholder = 'Tulis jawabanmu di sini...';
   const btn = document.createElement('button');
-  btn.className = 'btn btn-primary'; btn.style.marginTop = '16px'; btn.textContent = 'Lanjut';
+  btn.className = 'btn btn-primary sweep-container'; btn.style.marginTop = '16px'; btn.textContent = 'Lanjut';
   btn.addEventListener('click', () => {
     playClick();
     const ans = ta.value.toLowerCase();
@@ -850,13 +875,13 @@ function renderEssay(body, idx) {
   body.appendChild(card);
 }
 function renderMatch(body) {
-  const card = document.createElement('div'); card.className = 'paper';
+  const card = document.createElement('div'); card.className = 'paper anim-in';
   const num = document.createElement('div');
-  num.style.cssText = 'font-size:.75rem;color:var(--blue);font-weight:800;letter-spacing:1.5px;margin-bottom:8px;';
+  num.style.cssText = 'font-size:.75rem;color:var(--blue);font-weight:900;letter-spacing:1.5px;margin-bottom:8px;';
   num.textContent = 'MENJODOHKAN';
   const qt = document.createElement('p'); qt.className = 'q-text'; qt.textContent = 'Jodohkan pasangan yang benar';
   const hint = document.createElement('p');
-  hint.style.cssText = 'font-size:.85rem;color:var(--ink-soft);margin-bottom:16px;font-weight:500;';
+  hint.style.cssText = 'font-size:.85rem;color:var(--ink-soft);margin-bottom:16px;font-weight:600;';
   hint.textContent = 'Klik kiri lalu klik kanan untuk menjodohkan.';
 
   const rightShuffled = matchPairs.map((p, i) => ({ text: p.right, origIdx: i }));
@@ -904,7 +929,7 @@ function renderMatch(body) {
   card.appendChild(num); card.appendChild(qt); card.appendChild(hint); card.appendChild(wrap);
 
   const doneBtn = document.createElement('button');
-  doneBtn.className = 'btn btn-primary'; doneBtn.style.marginTop = '20px'; doneBtn.textContent = 'Selesai';
+  doneBtn.className = 'btn btn-primary sweep-container'; doneBtn.style.marginTop = '20px'; doneBtn.textContent = 'Selesai';
   doneBtn.addEventListener('click', () => { playClick(); quiz.step++; renderQuiz(); });
   card.appendChild(doneBtn);
   body.appendChild(card);
@@ -925,7 +950,7 @@ function renderResult(body) {
     action = () => showScreen('dashboard');
   }
   const wrap = document.createElement('div');
-  wrap.className = 'result-screen';
+  wrap.className = 'result-screen anim-in';
   wrap.innerHTML = `
     <div class="result-box">
       <div class="result-score">${total}<small> / 100</small></div>
@@ -968,7 +993,7 @@ function startStory() {
 function showInfoCard() {
   const infoWrap = document.getElementById('infoCardWrap');
   infoWrap.innerHTML = `
-    <div class="info-card">
+    <div class="info-card anim-in">
       <h3>My Info</h3>
       <div class="info-row"><span>Nama</span><span>Daffa Ubaidillah</span></div>
       <div class="info-row"><span>Umur</span><span>14 tahun</span></div>
@@ -1035,7 +1060,7 @@ function updateCountdown() {
   if (isToday) {
     if (!celWrap.querySelector('.cd-celebrate')) {
       const cel = document.createElement('div');
-      cel.className = 'cd-celebrate';
+      cel.className = 'cd-celebrate anim-in';
       cel.textContent = 'SELAMAT ULANG TAHUN, DAFFA! 🎂';
       celWrap.appendChild(cel);
     }
