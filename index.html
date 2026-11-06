@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>King Dafzz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --blue: #1565c0; --blue-dark: #0d47a1; --blue-mid: #1976d2;
+    --blue-light: #64b5f6; --blue-pale: #e3f2fd;
+    --ink: #0a1929; --ink-soft: #546e7a;
+    --white: #ffffff; --line: #cfd8dc;
+    --paper: #fffdf7; --paper-line: #eef3f9;
+    --danger: #c62828; --danger-pale: #ffebee;
+  }
+  html, body {
+    min-height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #f2f7fc; color: var(--ink);
+    -webkit-font-smoothing: antialiased; line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* === BACKGROUND EFEK (PARTIKEL TERBANG) === */
+  #bg-particles {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .particle {
+    position: absolute; bottom: -20px;
+    background: rgba(21,101,192,0.12); border-radius: 50%;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(circle, rgba(21,101,192,.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+    animation: bgDrift 45s linear infinite;
+  }
+  @keyframes bgDrift { 0% { background-position: 0 0; } 100% { background-position: 22px 44px; } }
+
+  #app { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; min-height: 100vh; padding: 20px 16px 30px; }
+
+  /* === SCREEN TRANSITIONS === */
+  .screen { display: none; }
+  .screen.active { display: block; }
+  
+  @keyframes popIn {
+    0% { opacity: 0; transform: translateY(60px) scale(0.92); }
+    60% { opacity: 1; transform: translateY(-6px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .screen.active > * {
+    animation: popIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .screen.active > *:nth-child(2) { animation-delay: 0.1s; }
+  .screen.active > *:nth-child(3) { animation-delay: 0.2s; }
+  .screen.active > *:nth-child(4) { animation-delay: 0.3s; }
+
+  /* === LIGHT SWEEP EFEK === */
+  .sweep-container { position: relative; overflow: hidden; }
+  .sweep-container::after {
+    content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    transform: skewX(-25deg); animation: sweep 3s infinite;
+  }
+  @keyframes sweep { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+
+  /* === RIPPLE === */
+  @keyframes rippleExpand { to { transform: scale(2.5); opacity: 0; } }
+  .ripple-el {
+    position: absolute; border-radius: 50%; background: rgba(21,101,192,.25); pointer-events: none;
+    transform: scale(0); animation: rippleExpand .65s ease-out;
+  }
+
+  /* === SPLASH === */
+  .emblem {
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: 22px; padding: 40px 24px 28px;
+    text-align: center; box-shadow: 0 10px 40px rgba(13,71,161,0.1);
+    margin-top: 28px; position: relative; overflow: hidden;
+  }
+  .emblem::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--blue), var(--blue-light), var(--blue));
+    background-size: 200% 100%; animation: borderGlow 2s linear infinite;
+  }
+  @keyframes borderGlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  
+  .emblem-frame {
+    width: 130px; height: 130px; border-radius: 50%; overflow: hidden;
+    margin: 0 auto 18px; border: 4px solid var(--blue-pale);
+    background: var(--blue-pale);
+    box-shadow: 0 0 0 2px var(--white), 0 0 0 6px var(--blue-light);
+    animation: pulseRing 2s ease-in-out infinite;
+  }
+  @keyframes pulseRing {
+    0%,100% { box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--blue-light); transform: scale(1); }
+    50% { box-shadow: 0 0 0 2px var(--white), 0 0 0 10px rgba(100,181,246,0.4); transform: scale(1.02); }
+  }
+  .emblem-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .emblem h1 { font-size: 1.4rem; letter-spacing: -0.5px; color: var(--ink); font-weight: 800; }
+  .emblem-sub { color: var(--blue); font-size: 0.85rem; margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
+  .emblem-info {
+    margin: 22px 0 24px; border-top: 1px dashed var(--line);
+    border-bottom: 1px dashed var(--line); padding: 14px 0; text-align: left;
+  }
+  .info-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 4px; font-size: 0.95rem; }
+  .info-row span:first-child { color: var(--ink-soft); }
+  .info-row span:last-child { font-weight: 700; color: var(--ink); text-align: right; }
+
+  /* === BUTTONS === */
+  .btn {
+    position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: none; cursor: pointer; font-family: inherit; font-size: 1rem; font-weight: 700; letter-spacing: 0.5px;
+    padding: 14px 24px; border-radius: 12px; width: 100%;
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .btn:hover { transform: translateY(-3px) scale(1.02); }
+  .btn:active { transform: translateY(1px) scale(0.98); }
+  .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 6px 20px rgba(21,101,192,.35); }
+  .btn-primary:hover { background: var(--blue-dark); box-shadow: 0 8px 25px rgba(21,101,192,.5); }
+  .btn-outline { background: #fff; color: var(--blue); border: 2px solid var(--blue); }
+  .btn-outline:hover { background: var(--blue-pale); }
+  .btn-danger { background: var(--danger); color: #fff; box-shadow: 0 6px 20px rgba(198,40,40,.3); }
+  .btn-danger:hover { background: #b71c1c; }
+  
+  .btn-back {
+    position: relative; overflow: hidden; background: #fff; border: 2px solid var(--line); color: var(--ink);
+    width: 44px; height: 44px; border-radius: 12px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;
+  }
+  .btn-back:hover { background: var(--blue-pale); border-color: var(--blue-light); transform: translateX(-4px); }
+
+  /* === PAPER === */
+  .paper {
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(to bottom, transparent 0px, transparent 32px, var(--paper-line) 32px, var(--paper-line) 33px);
+    border: 2px solid var(--line); border-radius: 16px;
+    padding: 28px 24px; box-shadow: 0 8px 30px rgba(13,71,161,0.08);
+    margin-top: 20px; position: relative; overflow: hidden;
+  }
+  .paper::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--blue); opacity: 0.9; }
+  .paper-q { font-size: 1.25rem; font-weight: 800; color: var(--ink); margin-bottom: 22px; }
+
+  /* === ROLE === */
+  .role-options { display: grid; gap: 14px; }
+  .role-card {
+    position: relative; overflow: hidden; background: #fff; border: 2px solid var(--line); border-radius: 14px;
+    padding: 20px; text-align: left; cursor: pointer; font-family: inherit; font-size: 1.1rem; font-weight: 800; color: var(--ink);
+    display: flex; align-items: center; justify-content: space-between; transition: all 0.3s;
+  }
+  .role-card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--blue-pale); transition: width 0.3s; z-index: 0;
+  }
+  .role-card:hover::before { width: 100%; }
+  .role-card > * { position: relative; z-index: 1; }
+  .role-card:hover { border-color: var(--blue); transform: translateY(-4px); box-shadow: 0 10px 25px rgba(21,101,192,.15); }
+  .role-card svg { color: var(--blue); transition: transform 0.3s; }
+  .role-card:hover svg { transform: scale(1.2) rotate(10deg); }
+
+  /* === SCREEN MUSUH === */
+  #musuh {
+    background: #0a1929; position: fixed; inset: 0; z-index: 99;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 20px; border-radius: 0; max-width: 100%; margin: 0;
+  }
+  #musuh.active { display: flex; }
+  .musuh-text {
+    font-size: 2.2rem; font-weight: 900; color: var(--danger); letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(198,40,40,0.5);
+    animation: shakeHard 0.5s infinite;
+    margin-bottom: 30px;
+  }
+  @keyframes shakeHard {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+  }
+
+  /* === DASHBOARD === */
+  #dashboard.active { display: flex; flex-direction: column; min-height: calc(100vh - 50px); }
+  .dash-banner {
+    background: var(--white); border: 2px solid var(--line); border-radius: 16px;
+    padding: 20px; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(13,71,161,.05);
+  }
+  .dash-banner::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--blue); }
+  .dash-banner p { font-size: 0.75rem; color: var(--ink-soft); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
+  .dash-banner h2 { font-size: 1.4rem; color: var(--ink); margin: 4px 0 8px; letter-spacing: -0.5px; font-weight: 800; }
+  .dash-badge { display: inline-block; background: var(--blue); color: #fff; font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px; animation: pulseBadge 2s infinite; }
+  @keyframes pulseBadge { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(21,101,192,0.4); } }
+
+  /* TICKER (TEKS BERJALAN) */
+  .ticker-wrap {
+    width: 100%; overflow: hidden; background: var(--blue-pale); border-radius: 8px;
+    padding: 8px 0; margin: 14px 0; border: 1px solid rgba(21,101,192,0.2);
+  }
+  .ticker {
+    display: inline-block; white-space: nowrap; padding-left: 100%;
+    animation: ticker 15s linear infinite; font-size: 0.85rem; font-weight: 700; color: var(--blue-dark);
+  }
+  @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+
+  /* WIDGET JAM */
+  .dash-clock-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px 0; min-height: 200px; }
+  .clock-card {
+    background: var(--white); border: 2px solid var(--line); border-radius: 20px;
+    padding: 30px 24px; width: 100%; text-align: center; box-shadow: 0 10px 30px rgba(13,71,161,0.08);
+    position: relative; overflow: hidden; transition: transform 0.3s;
+  }
+  .clock-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(13,71,161,0.15); }
+  .clock-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--blue); }
+  .clock-day { font-size: 0.85rem; font-weight: 800; color: var(--blue); text-transform: uppercase; letter-spacing: 2px; }
+  .clock-time { font-size: 3rem; font-weight: 900; color: var(--ink); letter-spacing: -1.5px; font-variant-numeric: tabular-nums; margin: 10px 0 4px; line-height: 1; text-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+  .clock-date { font-size: 0.9rem; color: var(--ink-soft); font-weight: 600; }
+  .clock-divider { height: 1px; background: var(--line); margin: 20px 0; }
+  .clock-quote { font-size: 0.85rem; color: var(--ink-soft); font-style: italic; line-height: 1.6; font-weight: 500; }
+
+  /* MENU BAWAH */
+  .menu-grid { display: grid; gap: 12px; margin-top: auto; }
+  .menu-card {
+    position: relative; overflow: hidden; background: #fff; border: 2px solid var(--line); border-radius: 16px;
+    padding: 16px; cursor: pointer; font-family: inherit; text-align: left;
+    display: flex; align-items: center; gap: 16px; transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(13,71,161,.04);
+  }
+  .menu-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--blue); transform: scaleY(0); transform-origin: bottom; transition: transform 0.3s; }
+  .menu-card:hover { border-color: var(--blue-light); box-shadow: 0 10px 25px rgba(21,101,192,.15); transform: translateY(-4px) scale(1.01); }
+  .menu-card:hover::before { transform: scaleY(1); }
+  .menu-card:active { transform: translateY(0) scale(0.98); }
+  .menu-icon {
+    width: 46px; height: 46px; border-radius: 12px; background: var(--blue-pale);
+    display: flex; align-items: center; justify-content: center; color: var(--blue);
+    flex-shrink: 0; transition: all 0.3s;
+  }
+  .menu-card:hover .menu-icon { background: var(--blue); color: #fff; animation: iconBounce 0.6s ease; }
+  @keyframes iconBounce { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.1); } }
+  .menu-body { flex: 1; }
+  .menu-title { font-weight: 800; font-size: 1.05rem; color: var(--ink); }
+  .menu-desc { font-size: 0.8rem; color: var(--ink-soft); margin-top: 2px; font-weight: 500; }
+  .menu-arrow { color: var(--blue-light); transition: transform 0.3s, color 0.3s; }
+  .menu-card:hover .menu-arrow { transform: translateX(6px) scale(1.1); color: var(--blue); }
+
+  /* === SUB HEADER === */
+  .sub-header { display: flex; align-items: center; gap: 14px; padding: 4px 0 20px; }
+  .sub-header h2 { font-size: 1.25rem; color: var(--ink); font-weight: 800; }
+  .sub-header p { font-size: 0.8rem; color: var(--ink-soft); font-weight: 500; }
+
+  /* === SOCIAL LIST === */
+  .list-card { background: #fff; border: 2px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(13,71,161,.04); }
+  .list-item { display: flex; align-items: center; gap: 14px; padding: 16px; border-bottom: 1px solid var(--line); font-size: 0.95rem; transition: background 0.2s, transform 0.2s; }
+  .list-item:hover { background: var(--blue-pale); transform: translateX(4px); }
+  .list-item:last-child { border-bottom: none; }
+  .list-ico { width: 40px; height: 40px; border-radius: 10px; background: var(--blue-pale); display: flex; align-items: center; justify-content: center; color: var(--blue); flex-shrink: 0; transition: all 0.3s; }
+  .list-item:hover .list-ico { background: var(--blue); color: #fff; transform: rotate(10deg) scale(1.1); }
+  .list-label { color: var(--ink-soft); font-size: 0.8rem; font-weight: 600; }
+  .list-value { font-weight: 800; color: var(--ink); word-break: break-all; }
+  .list-item.disabled .list-value { color: #b0bec5; }
+  
+  .section-title { font-size: 0.85rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin: 10px 4px 12px; }
+  .proj-link {
+    position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px;
+    background: #fff; border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 10px; color: var(--blue-dark); text-decoration: none; font-size: 0.9rem; font-weight: 700;
+    transition: all 0.25s;
+  }
+  .proj-link:hover { background: var(--blue-pale); border-color: var(--blue-light); transform: translateX(6px); box-shadow: 0 4px 15px rgba(21,101,192,.1); }
+  .proj-link span { flex: 1; word-break: break-all; }
+  .latest-badge { background: var(--danger); color: #fff; font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; flex-shrink: 0; animation: pulseBadge 1.5s infinite; }
+
+  /* === QUIZ === */
+  .quiz-progress { height: 8px; background: var(--blue-pale); border-radius: 4px; overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(21,101,192,0.1); }
+  .quiz-progress-bar { height: 100%; background: var(--blue); width: 0%; transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; overflow: hidden; }
+  .quiz-progress-bar::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent); animation: shimmer 1.5s infinite; }
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+  
+  .q-text { font-size: 1.15rem; font-weight: 800; margin-bottom: 20px; color: var(--ink); line-height: 1.4; }
+  .opt {
+    position: relative; overflow: hidden; display: block; width: 100%; text-align: left;
+    background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 16px;
+    margin-bottom: 10px; cursor: pointer; font-family: inherit; font-size: 0.95rem; color: var(--ink); font-weight: 600;
+    transition: all 0.2s;
+  }
+  .opt:hover { border-color: var(--blue); background: var(--blue-pale); transform: translateX(4px) scale(1.01); box-shadow: 0 4px 12px rgba(21,101,192,.1); }
+  .opt:active { transform: translateX(0) scale(0.98); }
+  
+  .essay-box {
+    width: 100%; min-height: 130px; resize: vertical; border: 2px solid var(--line); border-radius: 12px;
+    padding: 16px; font-family: inherit; font-size: 0.95rem; color: var(--ink); background: #fff; outline: none; transition: all 0.3s;
+  }
+  .essay-box:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(21,101,192,0.15); background: var(--blue-pale); }
+  
+  .match-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .match-col { display: flex; flex-direction: column; gap: 10px; }
+  .match-item {
+    position: relative; overflow: hidden; background: #fff; border: 2px solid var(--line); border-radius: 10px;
+    padding: 12px; font-size: 0.85rem; cursor: pointer; font-family: inherit; color: var(--ink); font-weight: 600; text-align: left; transition: all 0.2s;
+  }
+  .match-item:hover { border-color: var(--blue-light); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+  .match-item.sel { border-color: var(--blue); background: var(--blue-pale); box-shadow: 0 0 0 3px rgba(21,101,192,0.2); }
+  .match-item.done { border-color: var(--blue); background: var(--blue); color: #fff; font-weight: 700; cursor: default; }
+  .match-item.wrong { border-color: var(--danger); background: var(--danger-pale); animation: shakeWrong 0.4s; }
+  @keyframes shakeWrong { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+  /* === RESULT === */
+  .result-screen { text-align: center; padding-top: 40px; }
+  .result-box {
+    background: #fff; border: 2px solid var(--line); border-radius: 20px;
+    padding: 40px 24px; box-shadow: 0 15px 50px rgba(13,71,161,.15);
+    animation: popIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .result-score { font-size: 4rem; font-weight: 900; color: var(--blue); line-height: 1; margin-bottom: 10px; text-shadow: 0 6px 15px rgba(21,101,192,0.2); }
+  .result-score small { font-size: 1.2rem; color: var(--ink-soft); font-weight: 700; }
+  .result-title { font-size: 1.4rem; font-weight: 900; margin: 20px 0 25px; color: var(--ink); }
+
+  /* === STORY === */
+  .story-paper { min-height: 300px; }
+  .story-text { font-size: 1rem; color: var(--ink); white-space: pre-wrap; word-break: break-word; line-height: 32px; min-height: 220px; font-weight: 500; }
+  .cursor-blink { display: inline-block; width: 3px; height: 18px; background: var(--blue); vertical-align: middle; margin-left: 2px; animation: blink 0.8s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  
+  .info-card {
+    background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 24px;
+    margin-top: 20px; box-shadow: 0 10px 30px rgba(13,71,161,.1);
+    animation: popIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .info-card h3 { font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--line); font-weight: 800; }
+  .info-card .info-row { padding: 8px 0; font-size: 0.95rem; border-bottom: 1px dashed var(--line); }
+  .info-card .info-row:last-child { border-bottom: none; }
+
+  /* === COUNTDOWN === */
+  .cd-card {
+    background: var(--white); border: 2px solid var(--line); border-radius: 20px;
+    padding: 36px 24px; text-align: center; box-shadow: 0 10px 30px rgba(13,71,161,.1);
+    position: relative; overflow: hidden;
+  }
+  .cd-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--blue); }
+  .cd-label { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); font-weight: 800; }
+  .cd-date { font-size: 1.8rem; font-weight: 900; color: var(--ink); margin: 6px 0 24px; letter-spacing: -0.5px; }
+  .cd-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+  .cd-box {
+    background: var(--blue-pale); border-radius: 12px; padding: 18px 4px;
+    border: 2px solid rgba(21,101,192,0.15); transition: all 0.3s;
+  }
+  .cd-box:hover { background: #d8ecff; transform: translateY(-4px) scale(1.05); box-shadow: 0 6px 15px rgba(21,101,192,0.15); }
+  .cd-num { font-size: 1.8rem; font-weight: 900; color: var(--blue-dark); font-variant-numeric: tabular-nums; letter-spacing: -1px; display: inline-block; transition: transform 0.2s, color 0.2s; }
+  .cd-num.tick { transform: scale(1.3); color: var(--blue); text-shadow: 0 0 10px rgba(21,101,192,0.5); }
+  .cd-unit { font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px; font-weight: 800; }
+  
+  .cd-progress { height: 6px; background: var(--blue-pale); border-radius: 3px; overflow: hidden; margin-bottom: 20px; }
+  .cd-progress-fill { height: 100%; background: var(--blue); width: 0%; transition: width 0.5s ease; position: relative; overflow: hidden; }
+  .cd-progress-fill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent); animation: shimmer 1.5s infinite; }
+  .cd-info { font-size: 0.9rem; color: var(--ink-soft); font-weight: 600; }
+  .cd-info strong { color: var(--blue-dark); }
+  .cd-celebrate {
+    margin-top: 20px; padding: 16px; border-radius: 14px; background: var(--blue-pale);
+    border: 2px dashed var(--blue); color: var(--blue-dark); font-weight: 900; font-size: 1rem;
+    animation: popIn 0.5s ease;
+  }
+
+  /* === SIG === */
+  .sig { text-align: center; font-size: 0.8rem; color: var(--ink-soft); letter-spacing: 2px; margin-top: 20px; padding-top: 16px; border-top: 2px dashed var(--line); opacity: 0.8; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND PARTIKEL -->
+<div id="bg-particles"></div>
+
+<div id="app">
+
+  <!-- SPLASH -->
+  <div class="screen active" id="splash">
+    <div class="emblem">
+      <div class="emblem-frame">
+        <img id="profileImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23e3f2fd'/><circle cx='100' cy='78' r='34' fill='%231565c0'/><ellipse cx='100' cy='185' rx='62' ry='56' fill='%231565c0'/></svg>" alt="Foto Daffa">
+      </div>
+      <h1>Daffa Ubaidillah</h1>
+      <p class="emblem-sub">King Dafzz</p>
+      <div class="emblem-info">
+        <div class="info-row"><span>Nama</span><span>Daffa Ubaidillah</span></div>
+        <div class="info-row"><span>Umur</span><span>14 tahun</span></div>
+        <div class="info-row"><span>Tgl Lahir</span><span>13 September 2012</span></div>
+      </div>
+      <button class="btn btn-primary sweep-container" id="btnLanjut">
+        Lanjut
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ROLE -->
+  <div class="screen" id="role">
+    <div class="paper">
+      <p class="paper-q">Siapa kamu?</p>
+      <div class="role-options">
+        <button class="role-card sweep-container" data-role="teman">
+          <span>Teman</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </button>
+        <button class="role-card sweep-container" data-role="musuh">
+          <span>Musuh</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen" id="dashboard">
+    <div class="dash-banner">
+      <p>Selamat datang kembali</p>
+      <h2>Daffa Ubaidillah</h2>
+      <span class="dash-badge">King Dafzz</span>
+    </div>
+    
+    <div class="ticker-wrap">
+      <div class="ticker">🔥 Selamat datang di aplikasi King Dafzz! Jangan lupa cek sosial media dan kerjakan kuisnya ya! 🔥</div>
+    </div>
+
+    <div class="dash-clock-wrap">
+      <div class="clock-card">
+        <div class="clock-day" id="liveDay">Memuat...</div>
+        <div class="clock-time" id="liveTime">00:00:00</div>
+        <div class="clock-date" id="liveDate">...</div>
+        <div class="clock-divider"></div>
+        <div class="clock-quote">"Teruslah belajar dan berkarya, jangan lupa push rangk."</div>
+      </div>
+    </div>
+
+    <div class="menu-grid">
+      <button class="menu-card sweep-container" data-menu="social">
+        <div class="menu-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+        </div>
+        <div class="menu-body">
+          <div class="menu-title">Social Media</div>
+          <div class="menu-desc">5 akun &middot; 5 projek</div>
+        </div>
+        <svg class="menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
+      <button class="menu-card sweep-container" data-menu="foryou">
+        <div class="menu-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+        </div>
+        <div class="menu-body">
+          <div class="menu-title">For You</div>
+          <div class="menu-desc">20 soal &middot; maks 100</div>
+        </div>
+        <svg class="menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
+      <button class="menu-card sweep-container" data-menu="mee">
+        <div class="menu-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="menu-body">
+          <div class="menu-title">Mee</div>
+          <div class="menu-desc">Cerita &middot; Info</div>
+        </div>
+        <svg class="menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
+      <button class="menu-card sweep-container" data-menu="countdown">
+        <div class="menu-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6M12 2v3"/></svg>
+        </div>
+        <div class="menu-body">
+          <div class="menu-title">Hitung Mundur</div>
+          <div class="menu-desc">Menuju ulang tahun</div>
+        </div>
+        <svg class="menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+    <div class="sig">— KING DAFZZ —</div>
+  </div>
+
+  <!-- SOCIAL -->
+  <div class="screen" id="social">
+    <div class="sub-header">
+      <button class="btn-back" data-back="dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      </button>
+      <div><h2>Social Media</h2><p>Akun resmi Daffa</p></div>
+    </div>
+
+    <div class="list-card">
+      <div class="list-item">
+        <div class="list-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82s.51.5 0 0A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.85-2.48V9.75a5.66 5.66 0 1 0 4.95 5.6V8.86a7.35 7.35 0 0 0 4.3 1.38V7.15s-1.93.12-3.25-1.33z"/></svg></div>
+        <div style="flex:1"><div class="list-label">TikTok</div><div class="list-value">daffaubaydillah95</div></div>
+      </div>
+      <div class="list-item">
+        <div class="list-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23 7.2s-.2-1.6-.9-2.3c-.9-.9-1.8-.9-2.3-1C16.7 3.6 12 3.6 12 3.6s-4.7 0-7.8.3c-.4 0-1.4 0-2.3 1-.7.7-.9 2.3-.9 2.3S.8 9.1.8 11v1.8c0 1.9.2 3.8.2 3.8s.2 1.6.9 2.3c.9.9 2 .9 2.5 1 1.8.2 7.6.3 7.6.3s4.7 0 7.8-.3c.4-.1 1.4-.1 2.3-1 .7-.7.9-2.3.9-2.3s.2-1.9.2-3.8V11c0-1.9-.2-3.8-.2-3.8zM9.8 15.1V8.4l6.2 3.4-6.2 3.3z"/></svg></div>
+        <div style="flex:1"><div class="list-label">YouTube</div><div class="list-value">@KINGDAFZZ-n3x</div></div>
+      </div>
+      <div class="list-item disabled">
+        <div class="list-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h4M8 10v4M15 13h.01M18 11h.01"/><rect x="2" y="6" width="20" height="12" rx="3"/></svg></div>
+        <div style="flex:1"><div class="list-label">MLBB</div><div class="list-value">—</div></div>
+      </div>
+      <div class="list-item">
+        <div class="list-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s6 4 6 10a6 6 0 0 1-12 0c0-6 6-10 6-10z"/><path d="M9.5 12.5l1.5 1.5 3.5-3.5"/></svg></div>
+        <div style="flex:1"><div class="list-label">Free Fire</div><div class="list-value">10247166557</div></div>
+      </div>
+    </div>
+
+    <p class="section-title">My Projek</p>
+    <a class="proj-link" href="https://my-life-dafzz.onrender.com" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+      <span>my-life-dafzz.onrender.com</span>
+    </a>
+    <a class="proj-link" href="https://belajar-si.onrender.com" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+      <span>belajar-si.onrender.com</span>
+    </a>
+    <a class="proj-link" href="https://hacker-kingdafzz-1.onrender.com/" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+      <span>hacker-kingdafzz-1.onrender.com</span>
+    </a>
+    <a class="proj-link" href="https://hollow-dafzz.onrender.com" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+      <span>hollow-dafzz.onrender.com</span>
+    </a>
+    <a class="proj-link" href="https://jadwal-sekolah.onrender.com/" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+      <span>jadwal-sekolah.onrender.com</span>
+      <span class="latest-badge">LATEST</span>
+    </a>
+  </div>
+
+  <!-- FOR YOU -->
+  <div class="screen" id="foryou">
+    <div class="sub-header">
+      <button class="btn-back" data-back="dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      </button>
+      <div><h2>For You</h2><p>20 soal tentang Daffa</p></div>
+    </div>
+    <div class="quiz-progress"><div class="quiz-progress-bar" id="quizBar"></div></div>
+    <div id="quizBody"></div>
+  </div>
+
+  <!-- MEE -->
+  <div class="screen" id="mee">
+    <div class="sub-header">
+      <button class="btn-back" data-back="dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      </button>
+      <div><h2>Mee</h2><p>Ceritaku</p></div>
+    </div>
+    <div class="paper story-paper">
+      <div class="story-text" id="storyText"></div>
+    </div>
+    <div id="infoCardWrap"></div>
+  </div>
+
+  <!-- COUNTDOWN -->
+  <div class="screen" id="countdown">
+    <div class="sub-header">
+      <button class="btn-back" data-back="dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      </button>
+      <div><h2>Hitung Mundur</h2><p>Menuju hari spesial</p></div>
+    </div>
+    <div class="cd-card">
+      <p class="cd-label">Ulang Tahun Daffa</p>
+      <p class="cd-date">13 September</p>
+      <div class="cd-grid">
+        <div class="cd-box"><div class="cd-num" id="cdDays">0</div><div class="cd-unit">Hari</div></div>
+        <div class="cd-box"><div class="cd-num" id="cdHours">00</div><div class="cd-unit">Jam</div></div>
+        <div class="cd-box"><div class="cd-num" id="cdMins">00</div><div class="cd-unit">Menit</div></div>
+        <div class="cd-box"><div class="cd-num" id="cdSecs">00</div><div class="cd-unit">Detik</div></div>
+      </div>
+      <div class="cd-progress"><div class="cd-progress-fill" id="cdProgress"></div></div>
+      <p class="cd-info" id="cdInfo"></p>
+      <div id="cdCelebrate"></div>
+    </div>
+    <div class="sig">— KING DAFZZ —</div>
+  </div>
+
+  <!-- MUSUH (LAYAR GELAP) -->
+  <div class="screen" id="musuh">
+    <div class="musuh-text">pergi lu monyet 🐒🐵🙈</div>
+    <button class="btn btn-danger" id="btnKeluarMusuh" style="width:200px; border: 2px solid #fff; background:transparent;">Pergi</button>
+  </div>
+
+</div>
+
+<script>
+/* ============ AUDIO ============ */
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playClick() {
+  initAudio(); if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(950, t);
+  o.frequency.exponentialRampToValueAtTime(480, t + 0.05);
+  g.gain.setValueAtTime(0.07, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+  o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 0.08);
+}
+function playType() {
+  initAudio(); if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = 'square';
+  o.frequency.setValueAtTime(380 + Math.random() * 260, t);
+  g.gain.setValueAtTime(0.025, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+  o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 0.04);
+}
+function playPaper() {
+  initAudio(); if (!audioCtx) return;
+  const sr = audioCtx.sampleRate;
+  const buf = audioCtx.createBuffer(1, sr * 0.35, sr);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
+  const src = audioCtx.createBufferSource(); src.buffer = buf;
+  const f = audioCtx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 1200;
+  const g = audioCtx.createGain(); g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+  src.connect(f); f.connect(g); g.connect(audioCtx.destination); src.start();
+}
+function playError() {
+  initAudio(); if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(150, t);
+  o.frequency.exponentialRampToValueAtTime(50, t + 0.3);
+  g.gain.setValueAtTime(0.1, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+  o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 0.35);
+}
+
+/* ============ BACKGROUND PARTICLES ============ */
+function createParticles() {
+  const container = document.getElementById('bg-particles');
+  const count = 20;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 20 + 10;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (Math.random() * 10 + 10) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    container.appendChild(p);
+  }
+}
+createParticles();
+
+/* ============ RIPPLE ============ */
+function addRipple(e, el) {
+  const rect = el.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height) * 1.5;
+  const x = (e.clientX || (rect.left + rect.width / 2)) - rect.left - size / 2;
+  const y = (e.clientY || (rect.top + rect.height / 2)) - rect.top - size / 2;
+  const r = document.createElement('span');
+  r.className = 'ripple-el';
+  r.style.width = r.style.height = size + 'px';
+  r.style.left = x + 'px';
+  r.style.top = y + 'px';
+  el.appendChild(r);
+  setTimeout(() => r.remove(), 650);
+}
+document.addEventListener('pointerdown', e => {
+  const el = e.target.closest('.btn, .menu-card, .role-card, .opt, .match-item, .proj-link, .btn-back, .list-item');
+  if (el) addRipple(e, el);
+}, { passive: true });
+
+/* ============ NAV ============ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+/* ============ JAM REALTIME DASHBOARD ============ */
+function updateClock() {
+  const now = new Date();
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  
+  const dayEl = document.getElementById('liveDay');
+  const timeEl = document.getElementById('liveTime');
+  const dateEl = document.getElementById('liveDate');
+  
+  if (dayEl) {
+    dayEl.textContent = days[now.getDay()];
+    timeEl.textContent = 
+      String(now.getHours()).padStart(2, '0') + ':' +
+      String(now.getMinutes()).padStart(2, '0') + ':' +
+      String(now.getSeconds()).padStart(2, '0');
+    dateEl.textContent = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  }
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ============ SPLASH ============ */
+document.getElementById('btnLanjut').addEventListener('click', () => {
+  playClick(); playPaper(); showScreen('role');
+});
+
+/* ============ ROLE ============ */
+document.querySelectorAll('.role-card').forEach(btn => {
+  btn.addEventListener('click', () => {
+    playClick();
+    if (btn.dataset.role === 'teman') {
+      playPaper();
+      showScreen('dashboard');
+    } else {
+      playError();
+      showScreen('musuh');
+    }
+  });
+});
+
+// Keluar dari layar Musuh
+document.getElementById('btnKeluarMusuh').addEventListener('click', () => {
+  playClick();
+  showScreen('splash');
+});
+
+/* ============ DASHBOARD ============ */
+document.querySelectorAll('.menu-card').forEach(btn => {
+  btn.addEventListener('click', () => {
+    playClick(); playPaper();
+    const m = btn.dataset.menu;
+    if (m === 'social') showScreen('social');
+    else if (m === 'foryou') { startQuiz(); showScreen('foryou'); }
+    else if (m === 'mee') { showScreen('mee'); startStory(); }
+    else if (m === 'countdown') { showScreen('countdown'); startCountdown(); }
+  });
+});
+
+/* ============ BACK ============ */
+document.querySelectorAll('[data-back]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    playClick();
+    if (document.getElementById('countdown').classList.contains('active') && cdTimer) {
+      clearInterval(cdTimer); cdTimer = null;
+    }
+    if (document.getElementById('mee').classList.contains('active')) {
+      storyStarted = false;
+      if (storyTimer) { clearInterval(storyTimer); storyTimer = null; }
+    }
+    showScreen(btn.dataset.back);
+  });
+});
+
+/* ============ QUIZ DATA ============ */
+const abcQ = [
+  { q: "Siapa nama lengkap Daffa?", o: ["Daffa Ubaidillah","Daffa Ubaid","Daffa Dafzz","King Dafzz"], a: 0 },
+  { q: "Berapa umur Daffa saat ini?", o: ["13 tahun","14 tahun","15 tahun","16 tahun"], a: 1 },
+  { q: "Kapan tanggal lahir Daffa?", o: ["13 September 2012","12 September 2013","12 September 2012","12 Agustus 2012"], a: 0 },
+  { q: "Apa hobi Daffa?", o: ["Nyanyi","Coding & push rangk","Main bola","Melukis"], a: 1 },
+  { q: "Apa warna favorit Daffa?", o: ["Merah","Hijau","Biru","Kuning"], a: 2 },
+  { q: "Apa makanan favorit Daffa?", o: ["Mie ayam","Bakso","Sate","Nasgor & ayam Geprek"], a: 3 },
+  { q: "Di kota mana Daffa tinggal?", o: ["Jember","Bondowoso","Surabaya","Malang"], a: 1 },
+  { q: "Apa akun TikTok Daffa?", o: ["daffa95","daffaubaydillah95","kingdafzz","daffaubaid"], a: 1 },
+  { q: "Apa nama channel YouTube Daffa?", o: ["@KINGDAFZZ-n3x","@daffaubay","@daffa95","@kingdaf"], a: 0 },
+  { q: "Daffa bersekolah di?", o: ["SMPN 1 Bondowoso","SMPN 2 Bondowoso","SMPN 3 Bondowoso","SMA 1 Bondowoso"], a: 1 }
+];
+const essayQ = [
+  { q: "Siapa nama lengkap Daffa?", keys: ["daffa","ubaidillah"] },
+  { q: "Apa hobi Daffa?", keys: ["coding","push"] },
+  { q: "Daffa sekarang duduk di kelas berapa?", keys: ["8","viii","delapan"] },
+  { q: "Sebutkan kota & kecamatan tempat tinggal Daffa!", keys: ["bondowoso","curahdami"] },
+  { q: "Apa nama channel YouTube Daffa?", keys: ["kingdafzz","king","dafzz"] }
+];
+const matchPairs = [
+  { left: "TikTok", right: "daffaubaydillah95" },
+  { left: "YouTube", right: "@KINGDAFZZ-n3x" },
+  { left: "Warna favorit", right: "Biru" },
+  { left: "Makanan favorit", right: "Nasgor & ayam Geprek" },
+  { left: "Hobi", right: "Coding & push rangk" }
+];
+
+/* ============ QUIZ LOGIC ============ */
+let quiz = { step: 0, abcScore: 0, essayScore: 0, matchScore: 0, totalSteps: 16 };
+function resetQuiz() { quiz = { step: 0, abcScore: 0, essayScore: 0, matchScore: 0, totalSteps: 16 }; }
+function startQuiz() { resetQuiz(); renderQuiz(); }
+function updateBar() {
+  document.getElementById('quizBar').style.width = Math.min(100, (quiz.step / quiz.totalSteps) * 100) + '%';
+}
+function renderQuiz() {
+  updateBar();
+  const body = document.getElementById('quizBody');
+  body.innerHTML = '';
+  if (quiz.step < 10) renderABC(body, quiz.step);
+  else if (quiz.step < 15) renderEssay(body, quiz.step - 10);
+  else if (quiz.step === 15) renderMatch(body);
+  else renderResult(body);
+}
+function renderABC(body, idx) {
+  const q = abcQ[idx];
+  const card = document.createElement('div'); card.className = 'paper';
+  const num = document.createElement('div');
+  num.style.cssText = 'font-size:.75rem;color:var(--blue);font-weight:800;letter-spacing:1.5px;margin-bottom:8px;';
+  num.textContent = `SOAL ${idx + 1} / 10`;
+  const qt = document.createElement('p'); qt.className = 'q-text'; qt.textContent = q.q;
+  card.appendChild(num); card.appendChild(qt);
+  q.o.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt'; b.textContent = String.fromCharCode(65 + i) + '. ' + opt;
+    b.addEventListener('click', () => { playClick(); if (i === q.a) quiz.abcScore += 5; quiz.step++; renderQuiz(); });
+    card.appendChild(b);
+  });
+  body.appendChild(card);
+}
+function renderEssay(body, idx) {
+  const q = essayQ[idx];
+  const card = document.createElement('div'); card.className = 'paper';
+  const num = document.createElement('div');
+  num.style.cssText = 'font-size:.75rem;color:var(--blue);font-weight:800;letter-spacing:1.5px;margin-bottom:8px;';
+  num.textContent = `ESAI ${idx + 1} / 5`;
+  const qt = document.createElement('p'); qt.className = 'q-text'; qt.textContent = q.q;
+  const ta = document.createElement('textarea');
+  ta.className = 'essay-box'; ta.placeholder = 'Tulis jawabanmu di sini...';
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-primary'; btn.style.marginTop = '16px'; btn.textContent = 'Lanjut';
+  btn.addEventListener('click', () => {
+    playClick();
+    const ans = ta.value.toLowerCase();
+    if (q.keys.every(k => ans.includes(k))) quiz.essayScore += 6;
+    quiz.step++; renderQuiz();
+  });
+  card.appendChild(num); card.appendChild(qt); card.appendChild(ta); card.appendChild(btn);
+  body.appendChild(card);
+}
+function renderMatch(body) {
+  const card = document.createElement('div'); card.className = 'paper';
+  const num = document.createElement('div');
+  num.style.cssText = 'font-size:.75rem;color:var(--blue);font-weight:800;letter-spacing:1.5px;margin-bottom:8px;';
+  num.textContent = 'MENJODOHKAN';
+  const qt = document.createElement('p'); qt.className = 'q-text'; qt.textContent = 'Jodohkan pasangan yang benar';
+  const hint = document.createElement('p');
+  hint.style.cssText = 'font-size:.85rem;color:var(--ink-soft);margin-bottom:16px;font-weight:500;';
+  hint.textContent = 'Klik kiri lalu klik kanan untuk menjodohkan.';
+
+  const rightShuffled = matchPairs.map((p, i) => ({ text: p.right, origIdx: i }));
+  for (let i = rightShuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rightShuffled[i], rightShuffled[j]] = [rightShuffled[j], rightShuffled[i]];
+  }
+  const wrap = document.createElement('div'); wrap.className = 'match-wrap';
+  const leftCol = document.createElement('div'); leftCol.className = 'match-col';
+  const rightCol = document.createElement('div'); rightCol.className = 'match-col';
+  let selectedLeft = null, selectedLeftEl = null;
+
+  matchPairs.forEach((p, i) => {
+    const b = document.createElement('button');
+    b.className = 'match-item'; b.textContent = p.left;
+    b.addEventListener('click', () => {
+      if (b.classList.contains('done')) return;
+      playClick();
+      if (selectedLeftEl) selectedLeftEl.classList.remove('sel');
+      if (selectedLeftEl === b) { selectedLeft = null; selectedLeftEl = null; return; }
+      selectedLeft = i; selectedLeftEl = b; b.classList.add('sel');
+    });
+    leftCol.appendChild(b);
+  });
+  rightShuffled.forEach(r => {
+    const b = document.createElement('button');
+    b.className = 'match-item'; b.textContent = r.text;
+    b.addEventListener('click', () => {
+      if (b.classList.contains('done') || selectedLeft === null) return;
+      playClick();
+      if (r.origIdx === selectedLeft) {
+        b.classList.add('done'); selectedLeftEl.classList.remove('sel');
+        selectedLeftEl.classList.add('done');
+        quiz.matchScore += 4;
+        selectedLeft = null; selectedLeftEl = null;
+      } else {
+        playError();
+        b.classList.add('wrong');
+        const tmp = b; setTimeout(() => tmp.classList.remove('wrong'), 400);
+      }
+    });
+    rightCol.appendChild(b);
+  });
+  wrap.appendChild(leftCol); wrap.appendChild(rightCol);
+  card.appendChild(num); card.appendChild(qt); card.appendChild(hint); card.appendChild(wrap);
+
+  const doneBtn = document.createElement('button');
+  doneBtn.className = 'btn btn-primary'; doneBtn.style.marginTop = '20px'; doneBtn.textContent = 'Selesai';
+  doneBtn.addEventListener('click', () => { playClick(); quiz.step++; renderQuiz(); });
+  card.appendChild(doneBtn);
+  body.appendChild(card);
+}
+function renderResult(body) {
+  updateBar();
+  const total = quiz.abcScore + quiz.essayScore + quiz.matchScore;
+  let title, btnText, btnClass, action;
+  if (total < 34) {
+    title = 'KELUAR LU MONYET 🐒🐵🙈'; btnText = 'Pergii'; btnClass = 'btn btn-danger';
+    action = () => showScreen('splash');
+    playError();
+  } else if (total < 60) {
+    title = 'Sok Asik bet lu ngapa in disini?'; btnText = 'Keluar'; btnClass = 'btn btn-danger';
+    action = () => showScreen('splash');
+  } else {
+    title = 'Halo Bestfriend'; btnText = 'Kembali ke Dashboard'; btnClass = 'btn btn-primary';
+    action = () => showScreen('dashboard');
+  }
+  const wrap = document.createElement('div');
+  wrap.className = 'result-screen';
+  wrap.innerHTML = `
+    <div class="result-box">
+      <div class="result-score">${total}<small> / 100</small></div>
+      <div class="result-title">${title}</div>
+      <button class="${btnClass} sweep-container" id="resultBtn">${btnText}</button>
+    </div>`;
+  body.appendChild(wrap);
+  wrap.querySelector('#resultBtn').addEventListener('click', () => { playClick(); action(); });
+}
+
+/* ============ STORY ============ */
+const storyText = `Haloo semuanya perkenalkan aku  𓆩 ᖽᐸɪղᘜ ༒ ᙃᴀ̷𝖿ᴢᴢ 𓆪 bisa di panggil Daffa aj sih, sedikit cerita saja ya aku merupakan seorang anak yg cukup baik dan tidak terlalu baik juga, alasanku inggin sekolah di SMPN 2 Bondowoso karena adanya bayak hal" menarik dan extrakuler yg beragam, semoga di kelas VIIIA/8A ini aku bisa bersikap baik, dan saling menghormati ▄█▀█●
+
+𝙱𝚢  𓆩 ᖽᐸɪղᘜ ༒ ᙃᴀ̷𝖿ᴢᴢ 𓆪`;
+let storyTimer = null, storyStarted = false;
+
+function startStory() {
+  if (storyStarted) return;
+  storyStarted = true;
+  playPaper();
+  const el = document.getElementById('storyText');
+  const infoWrap = document.getElementById('infoCardWrap');
+  el.textContent = '';
+  infoWrap.innerHTML = '';
+  let i = 0;
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor-blink';
+  el.appendChild(cursor);
+  if (storyTimer) clearInterval(storyTimer);
+  storyTimer = setInterval(() => {
+    if (i >= storyText.length) {
+      clearInterval(storyTimer); cursor.remove(); showInfoCard(); return;
+    }
+    const ch = storyText[i];
+    cursor.insertAdjacentText('beforebegin', ch);
+    if (ch.trim() !== '' && i % 2 === 0) playType();
+    i++;
+  }, 30);
+}
+function showInfoCard() {
+  const infoWrap = document.getElementById('infoCardWrap');
+  infoWrap.innerHTML = `
+    <div class="info-card">
+      <h3>My Info</h3>
+      <div class="info-row"><span>Nama</span><span>Daffa Ubaidillah</span></div>
+      <div class="info-row"><span>Umur</span><span>14 tahun</span></div>
+      <div class="info-row"><span>Hobi</span><span>Coding &amp; push rangk</span></div>
+      <div class="info-row"><span>Warna favorit</span><span>Biru</span></div>
+      <div class="info-row"><span>Makanan favorit</span><span>Nasgor &amp; ayam Geprek</span></div>
+      <div class="info-row"><span>Teman favorit</span><span>𝚋𝚎𝚕𝚞𝚖 𝚊𝚍𝚊𝚊</span></div>
+      <div class="info-row"><span>Alamat</span><span style="max-width:60%;text-align:right;">Jawa Timur, Bondowoso, Curahdami, Sumber Suko, RT 4 RW 1</span></div>
+      <div class="info-row"><span>Tgl lahir</span><span>13 September 2012</span></div>
+    </div>`;
+  playPaper();
+}
+
+/* ============ COUNTDOWN ============ */
+let cdTimer = null;
+const BD_DAY = 13, BD_MONTH = 8;
+
+function startCountdown() {
+  if (cdTimer) clearInterval(cdTimer);
+  updateCountdown();
+  cdTimer = setInterval(updateCountdown, 1000);
+}
+
+function setNum(id, val) {
+  const el = document.getElementById(id);
+  if (el.textContent !== String(val)) {
+    el.textContent = String(val);
+    el.classList.add('tick');
+    setTimeout(() => el.classList.remove('tick'), 200);
+  }
+}
+
+function updateCountdown() {
+  const now = new Date();
+  const thisYear = now.getFullYear();
+  const isToday = now.getMonth() === BD_MONTH && now.getDate() === BD_DAY;
+  let bd = new Date(thisYear, BD_MONTH, BD_DAY, 0, 0, 0);
+  if (bd.getTime() <= now.getTime() && !isToday) {
+    bd = new Date(thisYear + 1, BD_MONTH, BD_DAY, 0, 0, 0);
+  }
+  const diff = Math.max(0, bd.getTime() - now.getTime());
+  const days  = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins  = Math.floor((diff % 3600000) / 60000);
+  const secs  = Math.floor((diff % 60000) / 1000);
+
+  setNum('cdDays', days);
+  setNum('cdHours', String(hours).padStart(2, '0'));
+  setNum('cdMins', String(mins).padStart(2, '0'));
+  setNum('cdSecs', String(secs).padStart(2, '0'));
+
+  const prevBD = new Date(bd.getFullYear() - 1, BD_MONTH, BD_DAY);
+  const totalSpan = bd.getTime() - prevBD.getTime();
+  const elapsed = now.getTime() - prevBD.getTime();
+  const pct = Math.max(0, Math.min(100, (elapsed / totalSpan) * 100));
+  document.getElementById('cdProgress').style.width = pct + '%';
+
+  const bdStr = bd.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('cdInfo').innerHTML = isToday
+    ? 'Hari ini hari ulang tahunmu! 🎉'
+    : `Ultah berikutnya: <strong>${bdStr}</strong>`;
+
+  const celWrap = document.getElementById('cdCelebrate');
+  if (isToday) {
+    if (!celWrap.querySelector('.cd-celebrate')) {
+      const cel = document.createElement('div');
+      cel.className = 'cd-celebrate';
+      cel.textContent = 'SELAMAT ULANG TAHUN, DAFFA! 🎂';
+      celWrap.appendChild(cel);
+    }
+  } else {
+    celWrap.innerHTML = '';
+  }
+}
+</script>
+</body>
+</html>
